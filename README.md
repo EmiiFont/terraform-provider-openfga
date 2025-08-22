@@ -1,5 +1,7 @@
 # Terraform provider for OpenFGA
 
+ref. for pr https://developer.hashicorp.com/terraform/plugin/framework/resources/read
+
 [![Go Reference](https://pkg.go.dev/badge/github.com/openfga/terraform-provider-openfga.svg)](https://pkg.go.dev/github.com/openfga/terraform-provider-openfga)
 [![Release](https://img.shields.io/github/v/release/openfga/terraform-provider-openfga?sort=semver&color=green)](https://github.com/openfga/terraform-provider-openfga/releases)
 [![Go Report](https://goreportcard.com/badge/github.com/openfga/terraform-provider-openfga)](https://goreportcard.com/report/github.com/openfga/terraform-provider-openfga)
