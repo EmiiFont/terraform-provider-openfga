@@ -74,8 +74,6 @@ func (wrapper *AuthorizationModelClient) ReadAuthorizationModel(ctx context.Cont
 		return nil, fmt.Errorf("authorization model not found: nil response")
 	}
 
-	fmt.Printf("READAUTHORIZATIONMODEL RESPONSE %v:", response.AuthorizationModel)
-
 	authorizationModel := *response.AuthorizationModel
 
 	return NewAuthorizationModelModelFromAuthorizationModel(authorizationModel), nil

@@ -5,7 +5,6 @@ import (
 	"os/exec"
 	"regexp"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
@@ -134,48 +133,17 @@ func TestAccAuthorizationModelResourceDrift(t *testing.T) {
 
 					t.Logf("Attempting to simulate external deletion of authorization model")
 
-					// Try approach 1: Direct database deletion with different table names
-					tableNames := []string{"authorization_models", "authorization_model", "authz_models", "models"}
-
-					for _, tableName := range tableNames {
-						cmd := exec.Command("docker", "exec",
-							"-e", "PGPASSWORD=password",
-							"openfga-postgres",
-							"psql", "-U", "openfga", "-d", "openfga",
-							"-c", fmt.Sprintf("DELETE FROM %s WHERE id = '%s' OR authorization_model_id = '%s';", tableName, authModelID, authModelID))
-
-						output, err := cmd.CombinedOutput()
-						if err == nil {
-							t.Logf("Successfully deleted from table %s: %s", tableName, string(output))
-							break
-						} else {
-							t.Logf("Failed to delete from table %s: %v, output: %s", tableName, err, string(output))
-						}
-					}
-
-					// Try approach 2: Reset the entire store (more drastic but might work)
 					cmd := exec.Command("docker", "exec",
 						"-e", "PGPASSWORD=password",
 						"openfga-postgres",
 						"psql", "-U", "openfga", "-d", "openfga",
-						"-c", fmt.Sprintf("DELETE FROM stores WHERE id = '%s';", storeID))
+						"-c", fmt.Sprintf("DELETE FROM %s WHERE authorization_model_id = '%s';", "authorization_model", authModelID))
 
 					output, err := cmd.CombinedOutput()
 					if err == nil {
-						t.Logf("Successfully deleted store (cascade delete): %s", string(output))
+						t.Logf("Successfully deleted from table %s: %s", "authorization_model", string(output))
 					} else {
-						t.Logf("Failed to delete store: %v, output: %s", err, string(output))
-					}
-
-					// Try approach 3: Use Docker to restart OpenFGA to clear in-memory state
-					cmd = exec.Command("docker", "restart", "openfga-openfga-1")
-					output, err = cmd.CombinedOutput()
-					if err == nil {
-						t.Logf("Successfully restarted OpenFGA container: %s", string(output))
-						// Wait for the container to come back up
-						time.Sleep(10 * time.Second)
-					} else {
-						t.Logf("Failed to restart OpenFGA container: %v, output: %s", err, string(output))
+						t.Logf("Failed to delete from table %s: %v, output: %s", "authorization_model", err, string(output))
 					}
 
 					t.Logf("Completed external deletion attempts")
